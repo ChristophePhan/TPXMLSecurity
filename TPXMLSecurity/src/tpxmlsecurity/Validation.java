@@ -37,7 +37,7 @@ public class Validation {
     public static void main(String[] args) throws Exception {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
-        Document doc = dbf.newDocumentBuilder().parse(new FileInputStream("resultat.xml"));
+        Document doc = dbf.newDocumentBuilder().parse(new FileInputStream("testEnveloppante.xml"));
         NodeList nl = doc.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
         
         XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");

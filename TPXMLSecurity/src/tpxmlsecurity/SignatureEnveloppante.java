@@ -63,9 +63,9 @@ public class SignatureEnveloppante {
         
         Transform xpathTransform = fac.newTransform(Transform.XPATH2, new XPathFilter2ParameterSpec(xpaths));
         List transforms = new ArrayList();
+        Transform transform = fac.newTransform(CanonicalizationMethod.EXCLUSIVE, (TransformParameterSpec) null);
         transforms.add(xpathTransform);
-
-        
+        transforms.add(transform);
 
         // Next, create the referenced Object
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -75,9 +75,9 @@ public class SignatureEnveloppante {
         //doc.adoptNode(docEntree.getFirstChild()):
         
         XMLStructure content = new DOMStructure(docEntree.getDocumentElement());
-        XMLObject obj = fac.newXMLObject(Collections.singletonList(content), "object", null, null);
+        XMLObject obj = fac.newXMLObject(Collections.singletonList(content), "obje", null, null);
 
-        Reference ref = fac.newReference("#object", dm, transforms, null,null);
+        Reference ref = fac.newReference("#obje", dm, transforms, null,null);
         
         // Create the SignedInfo
         SignedInfo si = fac.newSignedInfo(
