@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><racine>
+    <encyclopedie nom="Wikipedia" site="http://fr.wikipedia.org/">
+        <article nom="XPath">   
+            <auteurs>
+                <auteur>
+                    <nom>Dupont</nom>
+                </auteur>
+                <auteur>
+                    <nom>Dubois</nom>
+                </auteur>
+            </auteurs>
+        </article>
+    </encyclopedie>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2002/06/xmldsig-filter2"><XPath xmlns="http://www.w3.org/2002/06/xmldsig-filter2" Filter="union">article[1]/auteurs/auteur[2]</XPath></Transform><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>rEU6QxxngWpXTa7BTNoU4FJAK0I=</DigestValue></Reference></SignedInfo><SignatureValue>bTDTLemm6koYb3txL/mTs9rlSbdbtgTeX+ai0wlY2hnHm1/c34zQjw==</SignatureValue><KeyInfo><KeyValue><DSAKeyValue><P>/KaCzo4Syrom78z3EQ5SbbB4sF7ey80etKII864WF64B81uRpH5t9jQTxeEu0ImbzRMqzVDZkVG9
+xD7nN1kuFw==</P><Q>li7dzDacuo67Jg7mtqEm2TRuOMU=</Q><G>Z4Rxsnqc9E7pGknFFH2xqaryRPBaQ01khpMdLRQnG541Awtx/XPaF5Bpsy4pNWMOHCBiNU0Nogps
+QW5QvnlMpA==</G><Y>zeHorF+tlSJeBXHgO92ZWjwwZKR9vqShztY3f8L5NCaJj99y7piQYNuN6XH7n8aNmEckKk0+lxh2
+GNAx65jing==</Y></DSAKeyValue></KeyValue></KeyInfo></Signature></racine>
