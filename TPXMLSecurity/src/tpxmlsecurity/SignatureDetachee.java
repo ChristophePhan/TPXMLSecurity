@@ -6,12 +6,10 @@
 
 package tpxmlsecurity;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.Reference;
@@ -38,38 +36,41 @@ import org.w3c.dom.Document;
  */
 public class SignatureDetachee {
     public static void main(String[] args) throws Exception {
-        XMLSignatureFactory xmlFactory = XMLSignatureFactory.getInstance("DOM");
+        String path = "http://www.w3.org/TR/xml-stylesheet";
+
+        // creation des clés
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
+        kpg.initialize(512);
+        KeyPair kp = kpg.generateKeyPair();
+        // signature factory
+
+        XMLSignatureFactory signatureFactory = XMLSignatureFactory.getInstance("DOM");
         
-        Reference reference = xmlFactory.newReference("http://www.w3.org/TR/xml-stylesheet", xmlFactory.newDigestMethod(DigestMethod.SHA1, null));
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
         
-        CanonicalizationMethod cm = xmlFactory.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS, (C14NMethodParameterSpec) null);
-        SignatureMethod sm = xmlFactory.newSignatureMethod(SignatureMethod.DSA_SHA1, null);
-        List<Reference> listeRef = new ArrayList();
-        listeRef.add(reference);
-        SignedInfo signeInfo = xmlFactory.newSignedInfo(cm, sm, listeRef);
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+	Document document = dbf.newDocumentBuilder().newDocument();
         
-        KeyPairGenerator gen = KeyPairGenerator.getInstance("DSA");
-        gen.initialize(512);
-        KeyPair keyPair = gen.generateKeyPair();
+        // creation reference
+	Reference reference = signatureFactory.newReference(path, signatureFactory.newDigestMethod(DigestMethod.SHA1, null));
+
+        // creation signedinfo
+        SignedInfo si = signatureFactory.newSignedInfo(signatureFactory.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS,
+					(C14NMethodParameterSpec) null),signatureFactory.newSignatureMethod(SignatureMethod.DSA_SHA1, null),Collections.singletonList(reference));
         
-        KeyInfoFactory keyInfoFactory = xmlFactory.getKeyInfoFactory();
-        KeyValue keyValue = keyInfoFactory.newKeyValue(keyPair.getPublic());
+        // creation KeyInfo
+        KeyInfoFactory kif = signatureFactory.getKeyInfoFactory();
+        KeyValue kv = kif.newKeyValue(kp.getPublic());
+        KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv)); 
+	DOMSignContext dsc = new DOMSignContext(kp.getPrivate(), document);
+
+        // creation signature
+        XMLSignature signature = signatureFactory.newXMLSignature(si, ki);
+        signature.sign(dsc);
         
-        List<KeyValue> listekv = new ArrayList();
-        listekv.add(keyValue);
-        KeyInfo keyInfo = keyInfoFactory.newKeyInfo(listekv);
-        XMLSignature signature = xmlFactory.newXMLSignature(signeInfo, keyInfo);
-        
-        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-	docBuilderFactory.setNamespaceAware(true);
-        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-        
-        Document document = docBuilder.newDocument();
-        DOMSignContext domSignContext = new DOMSignContext(keyPair.getPrivate(), document);
- 
-        signature.sign(domSignContext);
-        
-        FileOutputStream fos = new FileOutputStream("resultat.xml");
+        // ecriture du fichier resultat
+        FileOutputStream fos = new FileOutputStream("resultatDetachee.xml");
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer trans = tf.newTransformer();
         trans.transform(new DOMSource(document), new StreamResult(fos));

@@ -6,12 +6,9 @@ package tpxmlsecurity;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import javax.xml.crypto.XMLStructure;
 import javax.xml.crypto.dom.DOMStructure;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
@@ -19,7 +16,6 @@ import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.Reference;
 import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.crypto.dsig.SignedInfo;
-import javax.xml.crypto.dsig.Transform;
 import javax.xml.crypto.dsig.XMLObject;
 import javax.xml.crypto.dsig.XMLSignature;
 import javax.xml.crypto.dsig.XMLSignatureFactory;
@@ -28,15 +24,15 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
-import javax.xml.crypto.dsig.spec.TransformParameterSpec;
-import javax.xml.crypto.dsig.spec.XPathFilter2ParameterSpec;
-import javax.xml.crypto.dsig.spec.XPathType;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Attr;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -47,78 +43,57 @@ import org.w3c.dom.Node;
 public class SignatureEnveloppante {
 
     public static void main(String[] args) throws Exception {
-
-        // First, create the DOM XMLSignatureFactory that will be used to
-        // generate the XMLSignature
-        XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
+        String path = "test.xml";
         
-        String xpath = args[2];
-        XPathType xpt = new XPathType(xpath, XPathType.Filter.UNION);
-        List xpaths = new ArrayList();
-        xpaths.add(xpt);
-
-        // Next, create a Reference to a same-document URI that is an Object
-        // element and specify the SHA1 digest algorithm
-        DigestMethod dm = fac.newDigestMethod(DigestMethod.SHA1, null);
-        
-        Transform xpathTransform = fac.newTransform(Transform.XPATH2, new XPathFilter2ParameterSpec(xpaths));
-        List transforms = new ArrayList();
-        Transform transform = fac.newTransform(CanonicalizationMethod.EXCLUSIVE, (TransformParameterSpec) null);
-        transforms.add(xpathTransform);
-        transforms.add(transform);
-
-        // Next, create the referenced Object
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        //Document doc = dbf.newDocumentBuilder().newDocument();
-        Document docEntree = dbf.newDocumentBuilder().parse(new FileInputStream(args[0]));
-        //doc.adoptNode(docEntree.getFirstChild()):
-        
-        XMLStructure content = new DOMStructure(docEntree.getDocumentElement());
-        XMLObject obj = fac.newXMLObject(Collections.singletonList(content), "obje", null, null);
-
-        Reference ref = fac.newReference("#obje", dm, transforms, null,null);
-        
-        // Create the SignedInfo
-        SignedInfo si = fac.newSignedInfo(
-                fac.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS,
-                (C14NMethodParameterSpec) null),
-                fac.newSignatureMethod(SignatureMethod.DSA_SHA1, null),
-                Collections.singletonList(ref));
-
-        // Create a DSA KeyPair
+        // creation clés
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
         kpg.initialize(512);
         KeyPair kp = kpg.generateKeyPair();
+        
+        // signature factory
+        XMLSignatureFactory signatureFactory = XMLSignatureFactory.getInstance("DOM");
+        
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        
+        // objets xpath
+	XPathFactory xpathfactory = XPathFactory.newInstance();
+	XPath xpath = xpathfactory.newXPath();
+        
+        // creation des documents et de la requete xpath
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document document = builder.parse(new FileInputStream(path));
+        Document document2 = builder.newDocument();
+        String requete = "/racine/encyclopedie/article";
+        Node node = (Node) xpath.compile(requete).evaluate(document, XPathConstants.NODE);
+        
+        // creation reference
+	Reference reference = signatureFactory.newReference("#object", signatureFactory.newDigestMethod(DigestMethod.SHA1, null));
 
-        // Create a KeyValue containing the DSA PublicKey that was generated
-        KeyInfoFactory kif = fac.getKeyInfoFactory();
+        // creation signedInfo
+        SignedInfo si = signatureFactory.newSignedInfo(signatureFactory.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS,
+					(C14NMethodParameterSpec) null),signatureFactory.newSignatureMethod(SignatureMethod.DSA_SHA1, null),Collections.singletonList(reference));
+        
+        // creation keyInfo
+        KeyInfoFactory kif = signatureFactory.getKeyInfoFactory();
         KeyValue kv = kif.newKeyValue(kp.getPublic());
+        KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv)); 
+	DOMSignContext dsc = new DOMSignContext(kp.getPrivate(), document2);  
+        
+        // creation du noeud object
+        XMLStructure content = new DOMStructure(node);
+        XMLObject obj = signatureFactory.newXMLObject(Collections.singletonList(content), "object", null, null);
 
-        // Create a KeyInfo and add the KeyValue to it
-        KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
-
-        // Create the XMLSignature (but don't sign it yet)
-        XMLSignature signature = fac.newXMLSignature(si, ki,
-                Collections.singletonList(obj), null, null);
-
-        // Create a DOMSignContext and specify the DSA PrivateKey for signing
-        // and the document location of the XMLSignature
-        DOMSignContext dsc = new DOMSignContext(kp.getPrivate(), docEntree);
-
-        // Lastly, generate the enveloping signature using the PrivateKey
+        // creation de la signature
+        XMLSignature signature = signatureFactory.newXMLSignature(si, ki, Collections.singletonList(obj), null, null);
         signature.sign(dsc);
-
-        // output the resulting document
-        OutputStream os;
-        if (args.length > 0) {
-            os = new FileOutputStream(args[1]);
-        } else {
-            os = System.out;
-        }
-
+        
+        // ecriture du fichier resultat
+        FileOutputStream fos = new FileOutputStream("resultatEnveloppante.xml");
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer trans = tf.newTransformer();
-        trans.transform(new DOMSource(docEntree), new StreamResult(os));
+        trans.transform(new DOMSource(document2), new StreamResult(fos));
+
+
     }
 }
