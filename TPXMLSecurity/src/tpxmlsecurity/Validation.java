@@ -35,8 +35,7 @@ import org.w3c.dom.NodeList;
  */
 public class Validation {
 
-    public static void main(String[] args) throws Exception {
-        String path = "resultatDetachee.xml";
+    public void validation(String path) throws Exception {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
 
@@ -49,7 +48,6 @@ public class Validation {
                 
         // recuperation de la signature
         Node signature = nodeList.item(0);
-        System.out.println(signature);
         DOMValidateContext validateContext = new DOMValidateContext
             (new KeyValueKeySelector(), signature);
         // test de la signature

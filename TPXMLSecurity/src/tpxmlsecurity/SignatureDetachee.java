@@ -35,7 +35,7 @@ import org.w3c.dom.Document;
  * @author mathieu
  */
 public class SignatureDetachee {
-    public static void main(String[] args) throws Exception {
+    public void detachee(String resultat) throws Exception {
         String path = "http://www.w3.org/TR/xml-stylesheet";
 
         // creation des clés
@@ -70,7 +70,7 @@ public class SignatureDetachee {
         signature.sign(dsc);
         
         // ecriture du fichier resultat
-        FileOutputStream fos = new FileOutputStream("resultatDetachee.xml");
+        FileOutputStream fos = new FileOutputStream(resultat);
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer trans = tf.newTransformer();
         trans.transform(new DOMSource(document), new StreamResult(fos));

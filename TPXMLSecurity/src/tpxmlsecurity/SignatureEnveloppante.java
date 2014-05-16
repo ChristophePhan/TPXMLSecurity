@@ -42,8 +42,7 @@ import org.w3c.dom.Node;
  */
 public class SignatureEnveloppante {
 
-    public static void main(String[] args) throws Exception {
-        String path = "test.xml";
+    public void enveloppante(String path, String resultat) throws Exception {
         
         // creation clés
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
@@ -89,7 +88,7 @@ public class SignatureEnveloppante {
         signature.sign(dsc);
         
         // ecriture du fichier resultat
-        FileOutputStream fos = new FileOutputStream("resultatEnveloppante.xml");
+        FileOutputStream fos = new FileOutputStream(resultat);
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer trans = tf.newTransformer();
         trans.transform(new DOMSource(document2), new StreamResult(fos));

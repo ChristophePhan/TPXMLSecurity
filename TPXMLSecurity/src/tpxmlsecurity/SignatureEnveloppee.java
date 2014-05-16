@@ -45,8 +45,7 @@ import org.w3c.dom.NodeList;
  */
 public class SignatureEnveloppee {
 
-    public static void main(String[] args) throws Exception {
-        String path = "test.xml";
+    public void enveloppee(String path, String resultat) throws Exception {
         
         // creation des clés
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
@@ -95,7 +94,7 @@ public class SignatureEnveloppee {
         signature.sign(dsc);
         
         // ecriture du fichier resultat
-        FileOutputStream fos = new FileOutputStream("resultatEnveloppee.xml");
+        FileOutputStream fos = new FileOutputStream(resultat);
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer trans = tf.newTransformer();
         trans.transform(new DOMSource(document), new StreamResult(fos));
