@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/><Reference URI="#object"><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>AWyoPhPOelIpHzQKT961NCCFdM4=</DigestValue></Reference></SignedInfo><SignatureValue>A5EPVSWifg5o1vWqxOARzgk09w2Uf8fy7JAlTzXTYh8foAL9U+1uUg==</SignatureValue><KeyInfo><KeyValue><DSAKeyValue><P>/KaCzo4Syrom78z3EQ5SbbB4sF7ey80etKII864WF64B81uRpH5t9jQTxeEu0ImbzRMqzVDZkVG9
+xD7nN1kuFw==</P><Q>li7dzDacuo67Jg7mtqEm2TRuOMU=</Q><G>Z4Rxsnqc9E7pGknFFH2xqaryRPBaQ01khpMdLRQnG541Awtx/XPaF5Bpsy4pNWMOHCBiNU0Nogps
+QW5QvnlMpA==</G><Y>y6CYcJVzki/BYNMQ/RCjeO4B43IKJZf7Ze9elGvk7ilHZI2rjWOrN9JrzFmqSOrCFco/CDmDoOou
+eVFP2MnKyA==</Y></DSAKeyValue></KeyValue></KeyInfo><Object Id="object"><article nom="XPath" xmlns="">   
+            <auteurs>
+                <auteur>
+                    <nom>Dupont</nom>
+                </auteur>
+                <auteur>
+                    <nom>Dubois</nom>
+                </auteur>
+            </auteurs>
+        </article></Object></Signature>
